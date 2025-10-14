@@ -1,0 +1,90 @@
+import { motion } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
+
+const NAVIGATION_ITEMS = [
+	{
+		name: "Home",
+		color: "#6366f1",
+		href: "/",
+	},
+	{ name: "Locations", color: "#8B5CF6", href: "/location" },
+	{ name: "Accommodations", color: "#EC4899", href: "/accommodations" },
+	{ name: "Activities", color: "#10B981", href: "/activities" },
+	{ name: "Contacts", color: "#F59E0B", href: "/contacts" },
+];
+
+const TopNavigation = () => {
+	const location = useLocation();
+
+	return (
+		<motion.div
+			initial={{ opacity: 0, y: -20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.5 }}
+			className="fixed top-0 left-0 right-0 z-20 bg-white bg-opacity-95 backdrop-blur-md border-b border-gray-200 h-32"
+		>
+			<div className="max-w-7xl mx-auto px-4 h-full">
+				<div className="flex items-center justify-between h-full">
+					{/* Logo */}
+					<div className="flex-shrink-0 h-full flex items-center">
+						<img 
+							src="./PNG 2.png" 
+							alt="Nhocas Way Logo" 
+							className="h-full w-auto max-h-28"
+							onLoad={() => console.log('Logo loaded successfully')}
+							onError={(e) => {
+								console.log('Logo failed to load:', e.target.src);
+								e.target.style.display = 'none';
+							}}
+						/>
+					</div>
+					
+					{/* Navigation */}
+					<nav className="flex space-x-8">
+					{NAVIGATION_ITEMS.map((item, index) => {
+						const isActive = location.pathname === item.href;
+						
+						return (
+							<Link key={item.href} to={item.href}>
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ duration: 0.3, delay: index * 0.1 }}
+									whileHover={{ scale: 1.05 }}
+									className={`relative px-6 py-3 rounded-lg transition-all duration-300 ${
+										isActive 
+											? 'bg-gray-100 shadow-lg' 
+											: 'hover:bg-gray-100 hover:shadow-md'
+									}`}
+								>
+									<motion.span
+										className={`text-lg font-semibold transition-colors duration-300 ${
+											isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
+										}`}
+										style={{ 
+											color: isActive ? item.color : undefined
+										}}
+									>
+										{item.name}
+									</motion.span>
+									
+									{isActive && (
+										<motion.div
+											layoutId="activeIndicator"
+											className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-20 rounded-lg"
+											initial={false}
+											transition={{ type: "spring", stiffness: 500, damping: 30 }}
+										/>
+									)}
+								</motion.div>
+							</Link>
+						);
+					})}
+					</nav>
+				</div>
+			</div>
+		</motion.div>
+	);
+};
+
+export default TopNavigation;
