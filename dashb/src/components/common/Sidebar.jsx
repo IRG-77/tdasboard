@@ -1,23 +1,52 @@
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 
 const SIDEBAR_ITEMS = [
 	{
 		name: "Home",
-		color: "#6366f1",
+		color: "#F59E0B",
 		href: "/",
 	},
-	{ name: "Locations", color: "#8B5CF6", href: "/location" },
-	{ name: "Accommodations", color: "#EC4899", href: "/accommodations" },
-	{ name: "Activities", color: "#10B981", href: "/activities" },
+	{ name: "Locations", color: "#F59E0B", href: "/location" },
+	{ name: "Accommodations", color: "#F59E0B", href: "/accommodations" },
+	{ name: "Activities", color: "#F59E0B", href: "/activities" },
 	{ name: "Contacts", color: "#F59E0B", href: "/contacts" },
 ];
 
 const Sidebar = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+	const [hasNavigated, setHasNavigated] = useState(false);
 	const location = useLocation();
+
+	// Track if user has navigated away from initial load
+	useEffect(() => {
+		if (location.pathname !== '/') {
+			setHasNavigated(true);
+		}
+	}, [location.pathname]);
+
+	// Auto-close sidebar on smaller screens when location changes
+	useEffect(() => {
+		const handleResize = () => {
+			if (window.innerWidth < 1024) { // lg breakpoint
+				setIsSidebarOpen(false);
+			}
+		};
+
+		// Close sidebar immediately if on small screen and location changes
+		if (window.innerWidth < 1024) {
+			setIsSidebarOpen(false);
+		}
+
+		// Also listen for resize events
+		window.addEventListener('resize', handleResize);
+
+		return () => {
+			window.removeEventListener('resize', handleResize);
+		};
+	}, [location.pathname]);
 
 	return (
 		<motion.div
@@ -39,26 +68,31 @@ const Sidebar = () => {
 				</motion.button>
 
 				<nav className='mt-8 flex-grow'>
-					{SIDEBAR_ITEMS.map((item) => (
-						<Link key={item.href} to={item.href}>
-							<motion.div className='flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors mb-2'>
-								<AnimatePresence>
-									{isSidebarOpen && (
-										<motion.span
-											className='whitespace-nowrap text-gray-600 hover:text-gray-900'
-											style={{ color: location.pathname === item.href ? item.color : undefined }}
-											initial={{ opacity: 0, width: 0 }}
-											animate={{ opacity: 1, width: "auto" }}
-											exit={{ opacity: 0, width: 0 }}
-											transition={{ duration: 0.2, delay: 0.3 }}
-										>
-											{item.name}
-										</motion.span>
-									)}
-								</AnimatePresence>
-							</motion.div>
-						</Link>
-					))}
+					{SIDEBAR_ITEMS.map((item) => {
+						// Don't show home as active on initial load
+						const isActive = location.pathname === item.href && (item.href !== '/' || hasNavigated);
+						
+						return (
+							<Link key={item.href} to={item.href}>
+								<motion.div className='flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors mb-2'>
+									<AnimatePresence>
+										{isSidebarOpen && (
+											<motion.span
+												className='whitespace-nowrap text-gray-600 hover:text-gray-900'
+												style={{ color: isActive ? item.color : undefined }}
+												initial={{ opacity: 0, width: 0 }}
+												animate={{ opacity: 1, width: "auto" }}
+												exit={{ opacity: 0, width: 0 }}
+												transition={{ duration: 0.2, delay: 0.3 }}
+											>
+												{item.name}
+											</motion.span>
+										)}
+									</AnimatePresence>
+								</motion.div>
+							</Link>
+						);
+					})}
 				</nav>
 			</div>
 		</motion.div>

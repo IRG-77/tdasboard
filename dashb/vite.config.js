@@ -8,5 +8,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: '/tdashboard/',
+  // base: '/tdashboard/', // Removed for Netlify deployment
 })

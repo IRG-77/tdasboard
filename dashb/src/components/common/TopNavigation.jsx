@@ -1,20 +1,30 @@
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import logoImage from "/PNG 2.png";
 
 const NAVIGATION_ITEMS = [
 	{
 		name: "Home",
-		color: "#6366f1",
+		color: "#F59E0B",
 		href: "/",
 	},
-	{ name: "Locations", color: "#8B5CF6", href: "/location" },
-	{ name: "Accommodations", color: "#EC4899", href: "/accommodations" },
-	{ name: "Activities", color: "#10B981", href: "/activities" },
+	{ name: "Locations", color: "#F59E0B", href: "/location" },
+	{ name: "Accommodations", color: "#F59E0B", href: "/accommodations" },
+	{ name: "Activities", color: "#F59E0B", href: "/activities" },
 	{ name: "Contacts", color: "#F59E0B", href: "/contacts" },
 ];
 
 const TopNavigation = () => {
 	const location = useLocation();
+	const [hasNavigated, setHasNavigated] = useState(false);
+
+	// Track if user has navigated away from initial load
+	useEffect(() => {
+		if (location.pathname !== '/') {
+			setHasNavigated(true);
+		}
+	}, [location.pathname]);
 
 	return (
 		<motion.div
@@ -26,23 +36,25 @@ const TopNavigation = () => {
 			<div className="max-w-7xl mx-auto px-4 h-full">
 				<div className="flex items-center justify-between h-full">
 					{/* Logo */}
-					<div className="flex-shrink-0 h-full flex items-center">
-						<img 
-							src="./PNG 2.png" 
+					<Link to="/" className="flex-shrink-0 h-full flex items-center">
+						<motion.img 
+							src={logoImage} 
 							alt="Nhocas Way Logo" 
-							className="h-full w-auto max-h-28"
+							className="h-full w-auto max-h-28 cursor-pointer"
+							whileHover={{ scale: 1.05 }}
+							transition={{ duration: 0.2 }}
 							onLoad={() => console.log('Logo loaded successfully')}
 							onError={(e) => {
 								console.log('Logo failed to load:', e.target.src);
-								e.target.style.display = 'none';
 							}}
 						/>
-					</div>
+					</Link>
 					
 					{/* Navigation */}
 					<nav className="flex space-x-8">
 					{NAVIGATION_ITEMS.map((item, index) => {
-						const isActive = location.pathname === item.href;
+						// Don't show home as active on initial load
+						const isActive = location.pathname === item.href && (item.href !== '/' || hasNavigated);
 						
 						return (
 							<Link key={item.href} to={item.href}>
@@ -51,7 +63,7 @@ const TopNavigation = () => {
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ duration: 0.3, delay: index * 0.1 }}
 									whileHover={{ scale: 1.05 }}
-									className={`relative px-6 py-3 rounded-lg transition-all duration-300 ${
+									className={`relative px-6 py-3 rounded-lg transition-all duration-150 ${
 										isActive 
 											? 'bg-gray-100 shadow-lg' 
 											: 'hover:bg-gray-100 hover:shadow-md'
